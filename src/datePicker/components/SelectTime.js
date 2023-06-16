@@ -195,10 +195,7 @@ const SelectTime = () => {
         onChange={minute => setTime({...time, minute})}
       />
       <View style={style.footer}>
-        <TouchableOpacity style={style.button} activeOpacity={0.8} onPress={selectTime}>
-          <Text style={style.btnText}>{utils.config.timeSelect}</Text>
-        </TouchableOpacity>
-        {mode !== 'time' && (
+        {mode == 'time' && (
           <TouchableOpacity
             style={[style.button, style.cancelButton]}
             onPress={() =>
@@ -209,6 +206,9 @@ const SelectTime = () => {
             activeOpacity={0.8}>
             <Text style={style.btnText}>{utils.config.timeClose}</Text>
           </TouchableOpacity>
+<TouchableOpacity style={style.button} activeOpacity={0.8} onPress={selectTime}>
+          <Text style={style.btnText}>{utils.config.timeSelect}</Text>
+        </TouchableOpacity>
         )}
       </View>
     </Animated.View>
