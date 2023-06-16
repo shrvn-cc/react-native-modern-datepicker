@@ -115,7 +115,7 @@ const TimeScroller = ({title, data, onChange}) => {
 };
 
 const SelectTime = () => {
-  const {options, state, utils, minuteInterval, mode, onTimeChange} = useCalendar();
+  const {options, state, utils, minuteInterval, mode, onTimeChange,onClose} = useCalendar();
   const [mainState, setMainState] = state;
   const [show, setShow] = useState(false);
   const [time, setTime] = useState({
@@ -199,7 +199,7 @@ const SelectTime = () => {
           <TouchableOpacity
             style={[style.button, style.cancelButton]}
             onPress={() =>
-              setMainState({
+              onClose() && setMainState({
                 type: 'toggleTime',
               })
             }
