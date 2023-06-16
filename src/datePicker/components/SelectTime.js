@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -10,12 +10,12 @@ import {
   I18nManager,
 } from 'react-native';
 
-import {useCalendar} from '../DatePicker';
+import { useCalendar } from '../DatePicker';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
-const TimeScroller = ({title, data, onChange}) => {
-  const {options, utils} = useCalendar();
+const TimeScroller = ({ title, data, onChange }) => {
+  const { options, utils } = useCalendar();
   const [itemSize, setItemSize] = useState(0);
   const style = styles(options);
   const scrollAnimatedValue = useRef(new Animated.Value(0)).current;
@@ -25,19 +25,19 @@ const TimeScroller = ({title, data, onChange}) => {
 
   useEffect(() => {
     scrollListener.current && clearInterval(scrollListener.current);
-    scrollListener.current = scrollAnimatedValue.addListener(({value}) => (active.current = value));
+    scrollListener.current = scrollAnimatedValue.addListener(({ value }) => (active.current = value));
 
     return () => {
       clearInterval(scrollListener.current);
     };
   }, [scrollAnimatedValue]);
 
-  const changeItemWidth = ({nativeEvent}) => {
-    const {width} = nativeEvent.layout;
+  const changeItemWidth = ({ nativeEvent }) => {
+    const { width } = nativeEvent.layout;
     !itemSize && setItemSize(width / 5);
   };
 
-  const renderItem = ({item, index}) => {
+  const renderItem = ({ item, index }) => {
     const makeAnimated = (a, b, c) => {
       return {
         inputRange: [...data.map((_, i) => i * itemSize)],
@@ -89,7 +89,7 @@ const TimeScroller = ({title, data, onChange}) => {
         horizontal
         snapToInterval={itemSize}
         decelerationRate={'fast'}
-        onScroll={Animated.event([{nativeEvent: {contentOffset: {x: scrollAnimatedValue}}}], {
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollAnimatedValue } } }], {
           useNativeDriver: true,
         })}
         data={I18nManager.isRTL ? data.reverse() : data}
@@ -115,12 +115,13 @@ const TimeScroller = ({title, data, onChange}) => {
 };
 
 const SelectTime = () => {
-  const {options, state, utils, minuteInterval, mode, onTimeChange,onClose} = useCalendar();
+  const { options, state, utils, minuteInterval, mode, onTimeChange, onClose } = useCalendar();
   const [mainState, setMainState] = state;
   const [show, setShow] = useState(false);
   const [time, setTime] = useState({
     minute: 0,
-    hour: 0,
+    hour: 1,
+    ampm: 'AM',
   });
   const style = styles(options);
   const openAnimation = useRef(new Animated.Value(0)).current;
@@ -129,7 +130,8 @@ const SelectTime = () => {
     show &&
       setTime({
         minute: 0,
-        hour: 0,
+        hour: 1,
+        ampm: 'AM',
       });
   }, [show]);
 
@@ -147,17 +149,17 @@ const SelectTime = () => {
 
   const selectTime = () => {
     const newTime = utils.getDate(mainState.activeDate);
-    newTime.hour(time.hour).minute(time.minute);
+    newTime.hour(((time.ampm === "AM" && time.hour !== 12)|| (time.ampm === "PM" && time.hour === 12)) ? time.hour : time.hour + 12).minute(time.minute);
     setMainState({
       type: 'set',
       activeDate: utils.getFormated(newTime),
       selectedDate: mainState.selectedDate
         ? utils.getFormated(
-            utils
-              .getDate(mainState.selectedDate)
-              .hour(time.hour)
-              .minute(time.minute),
-          )
+          utils
+            .getDate(mainState.selectedDate)
+            .hour(time.hour)
+            .minute(time.minute),
+        )
         : '',
     });
     onTimeChange(utils.getFormated(newTime, 'timeFormat'));
@@ -185,14 +187,19 @@ const SelectTime = () => {
   return show ? (
     <Animated.View style={containerStyle}>
       <TimeScroller
+        title="AM/PM"
+        data={["AM", "PM"]}
+        onChange={ampm => setTime({ ...time, ampm })}
+      />
+      <TimeScroller
         title={utils.config.hour}
-        data={Array.from({length: 24}, (x, i) => i)}
-        onChange={hour => setTime({...time, hour})}
+        data={Array.from({ length: 12 }, (x, i) => i + 1)}
+        onChange={hour => setTime({ ...time, hour: hour })}
       />
       <TimeScroller
         title={utils.config.minute}
-        data={Array.from({length: 60 / minuteInterval}, (x, i) => i * minuteInterval)}
-        onChange={minute => setTime({...time, minute})}
+        data={Array.from({ length: 60 / minuteInterval }, (x, i) => i * minuteInterval)}
+        onChange={minute => setTime({ ...time, minute })}
       />
       <View style={style.footer}>
         {mode == 'time' && (
@@ -271,4 +278,4 @@ const styles = theme =>
     },
   });
 
-export {SelectTime};
+export { SelectTime };
