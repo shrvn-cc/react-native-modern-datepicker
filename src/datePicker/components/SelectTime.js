@@ -8,6 +8,7 @@ import {
   Easing,
   TouchableOpacity,
   I18nManager,
+  Dimensions,
 } from 'react-native';
 
 import { useCalendar } from '../DatePicker';
@@ -33,8 +34,8 @@ const TimeScroller = ({ title, data, onChange }) => {
   }, [scrollAnimatedValue]);
 
   const changeItemWidth = ({ nativeEvent }) => {
-    const { width } = nativeEvent.layout;
-    !itemSize && setItemSize(width / 5);
+    const { height } = nativeEvent.layout;
+    !itemSize && setItemSize(height / 5);
   };
 
   const renderItem = ({ item, index }) => {
@@ -60,14 +61,14 @@ const TimeScroller = ({ title, data, onChange }) => {
       <Animated.View
         style={[
           {
-            width: itemSize,
+            height: itemSize,
             opacity: scrollAnimatedValue.interpolate(makeAnimated(1, 0.6, 0.3)),
             transform: [
               {
                 scale: scrollAnimatedValue.interpolate(makeAnimated(1.2, 0.9, 0.8)),
               },
               {
-                scaleX: I18nManager.isRTL ? -1 : 1,
+                scaleY: I18nManager.isRTL ? -1 : 1,
               },
             ],
           },
@@ -82,14 +83,14 @@ const TimeScroller = ({ title, data, onChange }) => {
 
   return (
     <View style={style.row} onLayout={changeItemWidth}>
-      <Text style={style.title}>{title}</Text>
+      {/* <Text style={style.title}>{title}</Text> */}
       <AnimatedFlatList
         pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        horizontal
+        showsVerticalScrollIndicator={false}
+        // horizontal
         snapToInterval={itemSize}
         decelerationRate={'fast'}
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollAnimatedValue } } }], {
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollAnimatedValue } } }], {
           useNativeDriver: true,
         })}
         data={I18nManager.isRTL ? data.reverse() : data}
@@ -104,7 +105,7 @@ const TimeScroller = ({ title, data, onChange }) => {
           I18nManager.isRTL && {
             transform: [
               {
-                scaleX: -1,
+                scaleY: -1,
               },
             ],
           }
@@ -149,7 +150,7 @@ const SelectTime = () => {
 
   const selectTime = () => {
     const newTime = utils.getDate(mainState.activeDate);
-    newTime.hour(((time.ampm === "AM" && time.hour !== 12)|| (time.ampm === "PM" && time.hour === 12)) ? time.hour : time.hour + 12).minute(time.minute);
+    newTime.hour(((time.ampm === "AM" && time.hour !== 12) || (time.ampm === "PM" && time.hour === 12)) ? time.hour : time.hour + 12).minute(time.minute);
     setMainState({
       type: 'set',
       activeDate: utils.getFormated(newTime),
@@ -186,34 +187,24 @@ const SelectTime = () => {
 
   return show ? (
     <Animated.View style={containerStyle}>
-      <TimeScroller
-        title="AM/PM"
-        data={["AM", "PM"]}
-        onChange={ampm => setTime({ ...time, ampm })}
-      />
-      <TimeScroller
-        title={utils.config.hour}
-        data={Array.from({ length: 12 }, (x, i) => i + 1)}
-        onChange={hour => setTime({ ...time, hour: hour })}
-      />
-      <TimeScroller
-        title={utils.config.minute}
-        data={Array.from({ length: 60 / minuteInterval }, (x, i) => i * minuteInterval)}
-        onChange={minute => setTime({ ...time, minute })}
-      />
+      <View style={style.header}>
+        <TimeScroller
+          title={utils.config.hour}
+          data={Array.from({ length: 12 }, (x, i) => i + 1)}
+          onChange={hour => setTime({ ...time, hour: hour })}
+        />
+        <TimeScroller
+          title={utils.config.minute}
+          data={Array.from({ length: 60 / minuteInterval }, (x, i) => i * minuteInterval)}
+          onChange={minute => setTime({ ...time, minute })}
+        />
+        <TimeScroller
+          title="AM/PM"
+          data={["AM", "PM"]}
+          onChange={ampm => setTime({ ...time, ampm })}
+        />
+      </View>
       <View style={style.footer}>
-        {mode == 'time' && (
-          <TouchableOpacity
-            style={[style.button, style.cancelButton]}
-            onPress={() =>
-              onClose() && setMainState({
-                type: 'toggleTime',
-              })
-            }
-            activeOpacity={0.8}>
-            <Text style={style.btnText}>{utils.config.timeClose}</Text>
-          </TouchableOpacity>
-        )}
         <TouchableOpacity style={style.button} activeOpacity={0.8} onPress={selectTime}>
           <Text style={style.btnText}>{utils.config.timeSelect}</Text>
         </TouchableOpacity>
@@ -227,7 +218,7 @@ const styles = theme =>
     container: {
       position: 'absolute',
       width: '100%',
-      height: '100%',
+      height: '85%',
       top: 0,
       right: 0,
       backgroundColor: theme.backgroundColor,
@@ -237,7 +228,7 @@ const styles = theme =>
       zIndex: 999,
     },
     row: {
-      flexDirection: 'column',
+      flexDirection: 'row',
       alignItems: 'center',
       marginVertical: 5,
     },
@@ -247,7 +238,7 @@ const styles = theme =>
       fontFamily: theme.headerFont,
     },
     listItem: {
-      height: 60,
+      width: 60,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -256,8 +247,17 @@ const styles = theme =>
       color: theme.textDefaultColor,
       fontFamily: theme.defaultFont,
     },
+    header: {
+      width: '100%',
+      height: '100%',
+      justifyContent: "center",
+      flexDirection: "row"
+    },
     footer: {
+      position:"absolute",
       flexDirection: 'row',
+      bottom:0,
+      right: Dimensions.get("screen").width/2.9,
       justifyContent: 'center',
       marginTop: 15,
     },
