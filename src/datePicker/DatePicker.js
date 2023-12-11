@@ -1,9 +1,9 @@
-import React, {createContext, useReducer, useContext, useState} from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, { createContext, useReducer, useContext, useState } from 'react';
+import { View, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
 
-import {Calendar, SelectMonth, SelectTime} from './components';
-import {utils} from '../utils';
+import { Calendar, SelectMonth, SelectTime } from './components';
+import { utils } from '../utils';
 
 const options = {
   backgroundColor: '#fff',
@@ -24,11 +24,11 @@ const options = {
 const reducer = (state, action) => {
   switch (action.type) {
     case 'set':
-      return {...state, ...action};
+      return { ...state, ...action };
     case 'toggleMonth':
-      return {...state, monthOpen: !state.monthOpen};
+      return { ...state, monthOpen: !state.monthOpen };
     case 'toggleTime':
-      return {...state, timeOpen: !state.timeOpen};
+      return { ...state, timeOpen: !state.timeOpen };
     default:
       throw new Error('Unexpected action');
   }
@@ -46,7 +46,7 @@ const DatePicker = props => {
   const contextValue = {
     ...props,
     reverse: props.reverse === 'unset' ? !props.isGregorian : props.reverse,
-    options: {...options, ...props.options},
+    options: { ...options, ...props.options },
     utils: calendarUtils,
     state: useReducer(reducer, {
       activeDate: props.current || calendarUtils.getToday(),
@@ -88,8 +88,8 @@ const DatePicker = props => {
   return (
     <CalendarContext.Provider value={contextValue}>
       <View
-        style={[style.container, {minHeight}, props.style]}
-        onLayout={({nativeEvent}) => setMinHeight(nativeEvent.layout.width * 0.9 + 55)}>
+        style={[style.container, { minHeight }, props.style]}
+        onLayout={({ nativeEvent }) => setMinHeight(nativeEvent.layout.width * 0.9 + 55)}>
         {renderBody()}
       </View>
     </CalendarContext.Provider>
@@ -129,7 +129,7 @@ DatePicker.defaultProps = {
   onMonthYearChange: () => null,
   onTimeChange: () => null,
   onDateChange: () => null,
-  onClose:() => null,
+  onClose: () => null,
   current: '',
   selected: '',
   minimumDate: '',
@@ -141,6 +141,7 @@ DatePicker.defaultProps = {
   configs: {},
   reverse: 'unset',
   options: {},
+  loading: false,
   mode: 'datepicker',
   minuteInterval: 5,
   style: {},
@@ -160,6 +161,7 @@ DatePicker.propTypes = {
   selectorEndingYear: PropTypes.number,
   disableDateChange: PropTypes.bool,
   isGregorian: PropTypes.bool,
+  loading: PropTypes.bool,
   configs: PropTypes.object,
   reverse: PropTypes.oneOf([true, false, 'unset']),
   options: PropTypes.shape(optionsShape),
@@ -168,4 +170,4 @@ DatePicker.propTypes = {
   style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
 };
 
-export {DatePicker, CalendarContext, useCalendar};
+export { DatePicker, CalendarContext, useCalendar };
