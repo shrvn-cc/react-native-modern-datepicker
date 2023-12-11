@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   I18nManager,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 
 import { useCalendar } from '../DatePicker';
@@ -17,7 +18,7 @@ const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const TimeScroller = ({ title, data, onChange }) => {
   const { options, utils } = useCalendar();
-  const [itemSize, setItemSize] = useState(0);
+  const [itemSize, setItemSize] = useState(Dimensions.get("screen").height * .09225);
   const style = styles(options);
   const scrollAnimatedValue = useRef(new Animated.Value(0)).current;
   const scrollListener = useRef(null);
@@ -62,10 +63,10 @@ const TimeScroller = ({ title, data, onChange }) => {
         style={[
           {
             height: itemSize,
-            opacity: scrollAnimatedValue.interpolate(makeAnimated(1, 0.6, 0.3)),
+            opacity: scrollAnimatedValue.interpolate(makeAnimated(1, 0.6, 0)),
             transform: [
               {
-                scale: scrollAnimatedValue.interpolate(makeAnimated(1.2, 0.9, 0.8)),
+                scale: scrollAnimatedValue.interpolate(makeAnimated(1.2, 0.9, 0)),
               },
               {
                 scaleY: I18nManager.isRTL ? -1 : 1,
@@ -105,7 +106,7 @@ const TimeScroller = ({ title, data, onChange }) => {
           I18nManager.isRTL && {
             transform: [
               {
-                scaleY: -1,
+                scaleX: -1,
               },
             ],
           }
@@ -116,7 +117,7 @@ const TimeScroller = ({ title, data, onChange }) => {
 };
 
 const SelectTime = () => {
-  const { options, state, utils, minuteInterval, mode, onTimeChange, onClose } = useCalendar();
+  const { options, state, utils, minuteInterval, mode, onTimeChange, loading } = useCalendar();
   const [mainState, setMainState] = state;
   const [show, setShow] = useState(false);
   const [time, setTime] = useState({
@@ -126,7 +127,7 @@ const SelectTime = () => {
   });
   const style = styles(options);
   const openAnimation = useRef(new Animated.Value(0)).current;
-
+  console.log({ loading })
   useEffect(() => {
     show &&
       setTime({
@@ -205,9 +206,11 @@ const SelectTime = () => {
         />
       </View>
       <View style={style.footer}>
-        <TouchableOpacity style={style.button} activeOpacity={0.8} onPress={selectTime}>
-          <Text style={style.btnText}>{utils.config.timeSelect}</Text>
-        </TouchableOpacity>
+        {
+          loading ? <ActivityIndicator style={{ ...style.button, paddingHorizontal: 35}} color="#ffffff" /> :
+            <TouchableOpacity style={style.button} activeOpacity={0.8} onPress={selectTime}>
+              <Text style={style.btnText}>{utils.config.timeSelect}</Text>
+            </TouchableOpacity>}
       </View>
     </Animated.View>
   ) : null;
@@ -218,7 +221,7 @@ const styles = theme =>
     container: {
       position: 'absolute',
       width: '100%',
-      height: '85%',
+      height: '100%',
       top: 0,
       right: 0,
       backgroundColor: theme.backgroundColor,
@@ -254,10 +257,10 @@ const styles = theme =>
       flexDirection: "row"
     },
     footer: {
-      position:"absolute",
+      position: "absolute",
       flexDirection: 'row',
-      bottom:0,
-      right: Dimensions.get("screen").width/2.9,
+      bottom: 0,
+      right: Dimensions.get("screen").width / 2.9,
       justifyContent: 'center',
       marginTop: 15,
     },
