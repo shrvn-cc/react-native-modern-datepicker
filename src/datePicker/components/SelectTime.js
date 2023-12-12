@@ -63,10 +63,10 @@ const TimeScroller = ({ title, data, onChange }) => {
         style={[
           {
             height: itemSize,
-            opacity: scrollAnimatedValue.interpolate(makeAnimated(1, 0.6, 0)),
+            opacity: scrollAnimatedValue.interpolate(makeAnimated(1, 0.6, 0.5)),
             transform: [
               {
-                scale: scrollAnimatedValue.interpolate(makeAnimated(1.2, 0.9, 0)),
+                scale: scrollAnimatedValue.interpolate(makeAnimated(1.2, 0.9, 0.5)),
               },
               {
                 scaleY: I18nManager.isRTL ? -1 : 1,
@@ -127,7 +127,6 @@ const SelectTime = () => {
   });
   const style = styles(options);
   const openAnimation = useRef(new Animated.Value(0)).current;
-  console.log({ loading })
   useEffect(() => {
     show &&
       setTime({
