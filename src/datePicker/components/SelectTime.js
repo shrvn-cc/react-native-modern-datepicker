@@ -87,6 +87,7 @@ const TimeScroller = ({ title, data, onChange }) => {
       {/* <Text style={style.title}>{title}</Text> */}
       <AnimatedFlatList
         pagingEnabled
+        nestedScrollEnabled 
         showsVerticalScrollIndicator={false}
         // horizontal
         snapToInterval={itemSize}
